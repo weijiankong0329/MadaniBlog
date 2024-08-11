@@ -1,0 +1,13 @@
+@media only screen and (max-width: 768px) {
+	#profile-picture {
+		width: 96px;
+		height: 96px;
+	}
+}
+
+@media only screen and (min-width: 1200px) {
+	#profile-picture {
+		width: 160px;
+		height: 160px;
+	}
+}

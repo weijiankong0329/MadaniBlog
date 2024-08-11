@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+{{post.title}}
+{% endblock %}
+{% block content %}
+{% load bootstrap_icons %}
+<link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/blog/">
+<link href="{% static 'css/style2.css' %}" rel="stylesheet" >
+<link href="{% static 'css/style.css' %}" rel="stylesheet" >
+<link href="{% static 'css/personal.css' %}" rel="stylesheet" >
+    <!-- Custom styles for this template -->
+<link href="https://fonts.googleapis.com/css?family=Playfair&#43;Display:700,900&amp;display=swap" rel="stylesheet">
+<body>
+    {% if post.image %}
+        <img src="{% get_media_prefix %}{{post.image}}" alt="" class="bd-placeholder-img" style="width: 100%; max-height: 300px;object-fit:cover;">
+    {% else %}
+        <img src="{% static 'images/blogpost_placeholder.png' %}" alt="" class="bd-placeholder-img" style="width: 100%; max-height: 300px;object-fit:cover;">
+    {% endif %}
+    <main class="container">
+    <div class="row mb-2">
+        <div class="row g-5">
+            <div class="col-md-8">
+                <article class="blog-post">
+                    <h2 class="display-5 link-body-emphasis mb-1">{{post.title}}</h2>
+                    <p class="blog-post-meta">{{post.creation_datetime|date:'F d, Y'}} by
+                        {% if request.user.id == post.author.id %}
+                        <a href="{% url 'Profile:profile' request.user.blogger.slug %}">{{ post.author.get_full_name }}</a>
+                        {% else %}
+                        <a href="{% url 'Profile:profile' post.author.blogger.slug %}">{{ post.author.get_full_name }}</a></p>
+                        {% endif %}
+
+                    <p class="text-justify">{{post.content}}</p>
+                    <div class=" row text-end mt-3 mb-3">
+                        <div class = "col-11 text-end">
+                        {{post.comment_set.count}} {% bs_icon 'chat' %}
+                        </div>
+                        <div class = "col-1">
+                        <form action="{% url 'Home:fav' post.pk %}" method="POST">
+                                {% csrf_token %}
+                                {{post.blogger_set.count}}
+
+                                {% if fav %}
+                                    <button type = "submit" name="fav" class="icon-button" value="no" style="color:red" >
+                                        {% bs_icon 'heart-fill'%}
+                                    </button>
+                                {% else %}
+                                   <button type = "submit" name="fav" class="icon-button"  style="color:red" value="yes" >
+                                        {% bs_icon 'heart' %}
+                                    </button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </div>
+                </article>
+                <div class="container border p-4">
+                    <h4>Comments</h4>
+                    {% for comment in post.comment_set.all %}
+                    <div class="d-flex mb-4 p-2">
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'Profile:profile' comment.blogger.blogger.slug %}">
+                                {% if comment.blogger.blogger.profile_image %}
+                                    <img class="avatar rounded-circle img-fluid" src="{% get_media_prefix %}{{comment.blogger.blogger.profile_image}}" alt="">
+                                {% else %}
+                                    <img class="avatar rounded-circle img-fluid" src="{% static 'images/placeholder-profile-icon.jpg' %}" >
+                                {% endif %}
+                            </a>
+                        </div>
+                        <div class="flex-grow-1 ms-2 ms-sm-3">
+                            <div class="d-flex align-items-baseline">
+                                <h6 class="me-2">{{comment.blogger.get_full_name}}</h6>
+                                <span class="text-muted">{{comment.published_date|date:'Y-m-d H:i'}}</span>
+                            </div>
+                            <div class="comment-body">
+                                {{comment.comment}}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="pt-4">
+                        <h3>Leave Your Comment Here</h3>
+                        <form method="POST" >
+                            <div class="form-floating">
+                                {% csrf_token %}
+                                {{ form.as_p }}
+                                <button class="btn btn-outline-dark" type="submit">Add Comment</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="position-sticky" style="top: 2rem;">
+                    <div class="p-4 mb-3 bg-body-tertiary rounded">
+                        <h4 class="fst-italic">About Blog</h4>
+                        <p class="mb-0">
+                            {% if post.author.blogger.blog_description %}
+                                {{post.author.blogger.blog_description|truncatechars:100 }}
+                            {% else %}
+                                No Written Description
+                            {% endif %}
+                        </p>
+                        {% if request.user.id == post.author.id %}
+                        <a href="{% url 'Personal:view' %}">Read More</a>
+                        {% else %}
+                        <a href="{% url 'Personal:viewOther' post.author.id %}">Read More</a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <h4 class="fst-italic">Recent posts</h4>
+                    <ul class="list-unstyled">
+                    {% for post in latest_posts %}
+                    <li>
+                        <a class="d-flex flex-column flex-lg-row gap-3 align-items-start align-items-lg-center py-3 link-body-emphasis text-decoration-none border-top" href="{% url 'Home:post_detail' post.id %}">
+                            <svg class="bd-placeholder-img" width="100%" height="96" >
+                            {% if post.image %}
+                                <img src="{% get_media_prefix %}{{post.image}}" alt="" class="bd-placeholder-img" width="40%" height="40%">
+                            {% else %}
+                                <img src="{% static 'images/blogpost_placeholder.png' %}" alt="" class="bd-placeholder-img" width="40%" height="40%">
+                            {% endif %}
+                            </svg>
+                            <div class="col-lg-8">
+                                <h6 class="mb-0">{{ post.title }}</h6>
+                                <small class="text-body-secondary">{{ post.creation_datetime|date:'F d, Y' }}</small>
+                            </div>
+                        </a>
+                    </li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                <hr/>
+                <div class="p-4">
+                    <h4 class="fst-italic">Categories</h4>
+                    {% for tag in tag %}
+                    <ol class="list-unstyled">
+                        <li>
+                            <a href="{% url 'Home:tag_posts' tag_id=tag.id %}">
+                                <button class="btn btn-dark rounded-5 mb-1" type="button">
+                                    {{tag.label_category}} {{tag.post_set.count}}
+                                </button>
+                            </a>
+                        </li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+<script src="/docs/5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
+</body>
+{% endblock %}

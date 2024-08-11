@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% load static %}
+{% load bootstrap_icons %}
+{% load mathfilters %}
+{% block title %}
+My Blog
+{% endblock %}
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{% static 'css/personal.css'%}" />
+
+{% if user.blogger.blog_title %}
+<section name="blogInfo">
+    <div class="overflow-hidden">
+        <div class="container" >
+            <div class="row">
+                <div class="text-decoration-none text-dark text-end me-1">
+                <a href="{% url 'Personal:view'%}">
+                    <div class="personal-banner">
+                        {% if user.blogger.blog_image %}
+                            <img src="{{ MEDIA_URL }}{{ user.blogger.blog_image}}" >
+                        {% else %}
+                            <img src="{% static 'images/blogpost_placeholder.png' %}" >
+                       {% endif %}
+
+                    </div>
+                </a>
+            </div>
+                <div class="text-center mt-3 text-light bg-dark p-3">
+                    <h6 class="display-2 banner-text">{{user.blogger.blog_title}}</h6>
+                </div>
+            <div class="mt-3 bg-dark">
+                <div class = "row bg-light border text-center p-sm-5">
+                    <div>
+                        {% if user.blogger.blog_description %}
+                        {{user.blogger.blog_description}}
+                        {% else %}
+                        No Provided Description
+                        {% endif %}
+                        <br/>
+                        <br/>
+                        -- {{user.date_joined.date}} --
+                    </div>
+                </div>
+            </div>
+
+          {% block personalPost %}{% endblock %}
+</section>
+{% else %}
+<div class="text-center p-4">
+    <h1>No Blog Create Yet</h1>
+    <br/>
+    <h5>Please Create Blog First Before Browse Your Profile</h5>
+    <br/>
+    <a href ="{% url 'Personal:createEditBlog'%}" class="text-decoration-none">
+        <button class="btn btn-outline-dark" type="submit">
+            Create Blog
+        </button>
+    </a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "personal/personalBlogBase.html" %}
+{% load static %}
+{% load bootstrap_icons %}
+{% load mathfilters %}
+{% block personalPost %}
+<div class="row">
+    <div class = "col-md-8" >
+        <div class="p-4">
+            <h3>{{singlePost.title}}</h3>
+            Category:
+            {% for tag in singlePost.category.all %}
+                {{tag}}
+            {% endfor %}
+            <br/>
+            <div class="text-secondary">{{singlePost.modification_datetime.date}}</div>
+
+            <div class="p-3">
+                {% if singlePost.image %}
+					<img src="{% get_media_prefix %}{{ singlePost.image}}" alt="{{singlePost.slug}}" class="img-fluid m-2">
+				{% else %}
+					<img src="{% static 'images/blogpost_placeholder.png' %}" alt="{{post.slug}}" class="img-fluid m-2">
+				{% endif %}
+            </div>
+            <div class="p-2 text-justify">
+                {{singlePost.content}}
+            </div>
+            <div class=" row text-end mt-3 mb-3">
+                <div class = "col-10 text-end">
+                    {{singlePost.comment_set.count}} {% bs_icon 'chat' %}
+                </div>
+                <div class = "col-2">
+                    <form action="{% url 'Personal:fav' singlePost.id %}" method="POST">
+                        {% csrf_token %}
+                        {{singlePost.blogger_set.count}}
+                        {% if fav %}
+                            <button type = "submit" name="fav" class="icon-button" value="no" style="color:red;outline:none">
+                                {% bs_icon 'heart-fill'%}
+                            </button>
+                        {% else %}
+                        <button type = "submit" name="fav" class="icon-button"  style="color:red;outline:none" value="yes" >
+                            {% bs_icon 'heart' %}
+                        </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </div>
+            <div class="container border p-4">
+                <h3>Comments </h3>
+                {% for comment in singlePost.comment_set.all %}
+                <div class="d-flex mb-4 p-2">
+                    <div class="flex-shrink-0">
+                         <a href="{% url 'Profile:profile' comment.blogger.blogger.slug %}">
+                             {% if comment.blogger.blogger.profile_image %}
+                                <img class="avatar rounded-circle" src="{% get_media_prefix %}{{comment.blogger.blogger.profile_image}}" alt="" class="img-fluid">
+
+                             {% else %}
+                                <img class="avatar rounded-circle" src="{% static 'images/placeholder-profile-icon.jpg' %}" >
+                            {% endif %}
+                            </a>
+                    </div>
+                    <div class="flex-grow-1 ms-2 ms-sm-3">
+                        <div class="d-flex align-items-baseline">
+                            <h6 class="me-2">{{comment.blogger.get_full_name}}</h6>
+                            <span class="text-muted">{{comment.published_date|date:'Y-m-d H:i'}}</span>
+                        </div>
+                        <div class="comment-body">
+                            {{comment.comment}}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="pt-4">
+                    <h6>Leave Your Comment Here</h6>
+                    <form method="POST" >
+                        <div class="form-floating">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button class="btn btn-outline-dark" type="submit">Add Comment</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="row text-center p-3">
+            <div class="text-decoration-none text-dark text-center">
+                <a href="{% url 'Personal:add' %}" class="col text-decoration-none text-start mb-2" >
+                    <button class="btn btn-dark rounded-5  " type="button">
+                        {% bs_icon 'plus' %} New Post
+                    </button>
+                </a>
+                <a href="{% url 'Personal:manage' %}" class="col text-decoration-none text-end">
+                    <button class="btn btn-dark rounded-5  " type="button">
+                        {% bs_icon 'justify' %} Manage Post
+                    </button>
+                </a>
+            </div>
+        </div>
+        <div class="p-4 border bg-light" class="text-decoration-none text-dark">
+            Popular Post
+            {% for p in posts|dictsortreversed:"num_fav"|slice:":5" %}
+            <a href="{% url 'Personal:postDetail' p.slug %}">
+                <div class="post-link border-bottom  pt-3 pb-3">
+                    <span class="text-black-50">{{p.modification_datetime}}</span>
+                    <h6 class="mb-2"><a href="{% url 'Personal:postDetail' p.slug %}">{{p.title}}</h6>
+                </div>
+            </a>
+            {% endfor %}
+
+        </div>
+    </div>
+    </div>
+
+{% endblock %}

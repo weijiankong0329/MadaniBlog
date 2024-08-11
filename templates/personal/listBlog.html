@@ -1,0 +1,138 @@
+{% extends "personal/personalBlogBase.html" %}
+{% load static %}
+{% load bootstrap_icons %}
+{% load mathfilters %}
+{% block personalPost %}
+<div class="p-2">
+    <div class="row">
+        <div class="col-md-2 border-end m-2 p-2 text-center"><b>{{user.post_set.count}}</b></br>Posts</div>
+        <div class="col-md-2 border-end m-2 p-2 text-center"><b>{{user.blogger.follower.count}}</b></br>Followers</div>
+        <div class="col-md-2 border-end m-2 p-2 text-center"><b>{{user.blogger.following_users.count}}</b></br>Following </div>
+        <div class="col-md-2 m-2 p-2 text-center"><b>{{user.blogger.fav_post.count}}</b></br>Favourite Posts</div>
+        <div class="col-md-3 text-center pt-3">
+            <div class="text-decoration-none text-dark text-center">
+                <a href="{% url 'Personal:add' %}" class="col text-decoration-none text-start mb-2" >
+                    <button class="btn btn-dark rounded-5  " type="button">
+                        {% bs_icon 'plus' %} New Post
+                    </button>
+                </a>
+                <a href="{% url 'Personal:manage' %}" class="col text-decoration-none text-end">
+                    <button class="btn btn-dark rounded-5  " type="button">
+                        {% bs_icon 'justify' %} Manage Post
+                    </button>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row g-2 ">
+    <div class="col-md-8">
+        <div class="p-4 border bg-light">
+	        <h4>Recent Post</h4>
+            <div class="row g-5">
+                {% if personal_post.count == 0 %}
+			    <div class="col post-link ms-2 p-2">
+				    No post
+                </div>
+		    </div>
+        {% else %}
+        {% for post in personal_post|slice:":4" %}
+		{% if  forloop.first %}
+                <div class="col post-link">
+                    <a href="{% url 'Personal:postDetail' post.slug %}">
+                    {% if post.image %}
+                        <img src="{% get_media_prefix %}{{ post.image}}" alt="{{post.slug}}" class="img-fluid m-2">
+                    {% else %}
+                        <img src="{% static 'images/blogpost_placeholder.png' %}" alt="{{post.slug}}" class="img-fluid m-2">
+                    {% endif %}
+                    </a>
+                    <div class="post-meta"><span>{{post.modification_datetime}}</span></div>
+                    <h4><a href="{% url 'Personal:postDetail' post.slug %}">{{post.title}}</a></h4>
+                    <p class="mb-4 d-block post-content-preview truncated">{{post.content|truncatechars:250}}</p>
+                    <div class="text-end">
+                        <a href="{% url 'Personal:postDetail' post.slug %}"  class="post-link"><button class="btn btn-dark rounded-5  "type="button">Read More</button></a>
+                    </div>
+                </div>
+                {% if personal_post.count == 1 %}
+            </div>
+        {% endif %}
+        {% else %}
+        {% if forloop.counter0|sub:1|divisibleby:3 %}
+                <div class="col border-start custom-border">
+		{% endif %}
+                    <div class="row post-entry-1 post-link border-bottom pt-3 pb-3">
+                        <div class="col-5 pt-2 pb-2">
+                            <a href="{% url 'Personal:postDetail' post.slug %}" class="post-link" >
+                            {% if post.image %}
+                            <img src="{% get_media_prefix %}{{ post.image}}" alt="" class="img-fluid">
+                            {% else %}
+                            <img src="{% static 'images/blogpost_placeholder.png' %}" alt="{{post.slug}}" class="img-fluid">
+                            {% endif %}
+                            </a>
+                        </div>
+                        <div class="col-6">
+                            <div class="post-meta"><span class="date">{{post.modification_datetime.date}}</span></div>
+                            <h5><a href="{% url 'Personal:postDetail' post.slug %}">{{post.title}}</a></h5>
+                        </div>
+                    </div>
+		{% if forloop.last %}
+                </div>
+            </div>
+
+		{% endif %}
+        {% endif %}
+		{% endfor %}
+        {% endif %}
+        </div>
+
+        <div class="mt-2 border bg-light">
+            <div class="text-center bg-dark text-light p-2">
+                <h6>All Post</h6>
+            </div>
+            {% if personal_post.count == 0 %}
+            <div class="post-link border-bottom  pt-3 pb-3">
+                <div class="row pe-4 ps-4">
+                    <div class="col-md-10">
+                        No Post
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        {% for p in personal_post %}
+            <a href="{% url 'Personal:postDetail' p.slug %}" class="text-decoration-none text-dark">
+                <div class="post-link border-bottom  pt-3 pb-3">
+                    <div class="row pe-4 ps-4">
+                        <div class="col-md-10">
+                            <span class="text-black-50">{{p.modification_datetime}}</span>
+                            <h6 class="mb-2">{{p.title}}</h6>
+                        </div>
+                        <div class="col-md-1 text-end">{% bs_icon 'heart' %}{{p.blogger_set.count}}</div>
+                        <div class="col-md-1 text-end">{% bs_icon 'chat' %}{{p.comment_set.count}} </div>
+                    </div>
+                </div>
+            </a>
+        {% endfor %}
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="p-4 border bg-light" class="text-decoration-none text-dark">
+            Popular Post
+            {% if personal_post.count == 0 %}
+             <div class="post-link border-bottom  pt-3 pb-3">
+                  No Post
+             </div>
+            {% endif %}
+            {% for p in personal_post|dictsortreversed:"num_fav"|slice:":5" %}
+            <a href="{% url 'Personal:postDetail' p.slug %}">
+                <div class="post-link border-bottom  pt-3 pb-3">
+                    <span class="text-black-50">{{p.modification_datetime}}</span>
+                    <h6 class="mb-2"><a href="{% url 'Personal:postDetail' p.slug %}">{{p.title}}</a></h6>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+{% endblock %}

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}
+Search Result
+{% endblock %}
+{% block content %}
+  <h1>Search Results: <span style="color: aquamarine;">"{{ keyword }}"</span></h1>
+  <hr>
+  {% if post_results %}
+    <div class="container">
+      <div class="row g-0">
+        <h2>Blog Post Results</h2>
+        <div class="card-body"></div>
+        {% for post in post_results %}
+          <div class="col-sm-8 bg-light mb-3" style="height: 200px;">
+            <div class="card-body">
+              <h3 class="card-title">{{ post.title }}</h3>
+              <div class="mb-2 text-muted">{{ post.creation_datetime|date:'F d, Y' }} by {{ post.author.get_full_name }}</div>
+              <p class="card-text">{{ post.content|truncatechars:100 }}</p>
+              <a href="{% url 'Home:post_detail' post.id %}" class="icon-link gap-1 icon-link-hover">
+                Continue reading
+              </a>
+            </div>
+          </div>
+        <div class="col-sm-4 bg-light mb-3" style="height: 200px;">
+            {% if post.image %}
+            <img src="{% get_media_prefix %}{{post.image}}" alt="" class="card-img-top" style="height: 200px;object-fit:cover;">
+            {% else %}
+            <img src="{% static 'images/blogpost_placeholder.png' %}" alt="" class="card-img-top" style="height: 200px;object-fit:cover;">
+            {% endif %}
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% else %}
+    <p>No blog post results found.</p>
+  {% endif %}
+  {% if blogger_results %}
+    <div class="container">
+      <div class="row g-0">
+        <h2>Bloggers Results</h2>
+        {% for user in blogger_results %}
+        <div class="card-body">
+        <div class="row bg-light p-4">
+          <div class="col-3  align-items-center" >
+            {% if user.blogger.profile_image %}
+            <img src="{% get_media_prefix %}{{user.blogger.profile_image}}" class="shadow rounded-circle search-profile" alt="profile picture">
+            {% else %}
+            <img src="{% static 'images/placeholder-profile-icon.jpg' %}" alt="" class="shadow rounded-circle search-profile">
+            {% endif %}
+          </div>
+          <div class="col-7">
+              <h3 class="card-title">{{ user.first_name }} {{ user.last_name }}</h3>
+              <div class="mt-2 mb-2"><h6>Blog Title</h6>{{user.blogger.blog_title }}</div>
+              <div class="mt-2 mb-2">
+                <h6>Blog Description</h6>
+                {% if user.blogger.blog_description %}
+                  {{ user.blogger.blog_description|truncatechars:50 }}
+                {% else %}
+                  Empty
+                {% endif %}
+              </div>
+          </div>
+          <div class="col-2 align-items-center">
+            <a href="{% url 'Profile:profile' user.blogger.slug %}">
+              <button class="btn btn-dark rounded-5  " type="button">View User Profile</button></a>
+          </div>
+        </div>
+        </div>
+
+        {% endfor %}
+</div>
+    </div>
+  {% else %}
+    <p>No blogger results found.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "personal/personalBlogBase.html" %}
+{% load static %}
+{% load bootstrap_icons %}
+{% load mathfilters %}
+{% block personalPost %}
+ <div class="row g-2">
+     <div class="mt-2 border bg-light">
+         <div class="text-center bg-dark text-light p-2">
+            <h6>Manage Post</h6>
+         </div>
+         {% if personal_post.count == 0 %}
+         <div class="post-link border-bottom  pt-3 pb-3">
+             <div class="row pe-4 ps-4">
+                 No Post
+             </div>
+         </div>
+         {% endif %}
+         {% for p in personal_post %}
+         <div class="post-link border-bottom  pt-3 pb-3">
+             <div class="row pe-4 ps-4">
+                 <div class="col-md-10">
+                     <span class="text-black-50">{{p.modification_datetime}}</span>
+                     <h6 class="mb-2">{{p.title}}</h6>
+                 </div>
+                 <div class="col-md-1 text-end">
+                     <a href="{% url 'Personal:postEdit' p.slug %}" class="text-decoration-none">
+                         <button class="btn btn-success btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Edit">
+                             <i>{% bs_icon 'pen' %}</i>
+                         </button>
+                     </a>
+                 </div>
+                 <div class="col-md-1 text-start">
+                     <a href="{% url 'Personal:postDelete' p.slug %}" class="text-decoration-none">
+                         <button class="btn btn-danger btn-sm rounded-0" type="button" data-toggle="tooltip" data-placement="top" title="Delete">
+                             <i>{% bs_icon 'trash' %}</i>
+                         </button>
+                     </a>
+                 </div>
+             </div>
+         </div>
+         {% endfor %}
+     </div>
+     <div class="text-decoration-none text-dark text-center mt-4">
+         <a href="{% url 'Personal:add' %}" class="col text-decoration-none text-start mb-2" >
+             <button class="btn btn-dark rounded-5  " type="button">
+                 {% bs_icon 'plus' %} New Post
+             </button>
+         </a>
+         <a href="{% url 'Personal:view' %}" class="col text-decoration-none text-start mb-2" >
+             <button class="btn btn-dark rounded-5  " type="button">
+                 {% bs_icon 'house' %} My Blog
+             </button>
+         </a>
+     </div>
+ </div>
+{% endblock %}
